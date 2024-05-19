@@ -1,0 +1,6 @@
+#ifndef SR1612Z1_H
+#define SR1612Z1_H
+
+#define SR1612Z1_DEF_BAUD_RATE 38400
+
+#endif // SR1612Z1_H
