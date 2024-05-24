@@ -1,6 +1,8 @@
 #ifndef SR1612Z1_H
 #define SR1612Z1_H
 
+#include <stdbool.h>
+
 #define SR1612Z1_DEF_BAUD_RATE 38400
 
 #define SR1612Z1_MAX_NMEA0183_MESSAGE_LENGTH 82
@@ -54,11 +56,37 @@ enum SR1612Z1_RestartType {
     SR1612Z1_RESTART_FACTORY_BOOT = 3
 };
 
+enum SR1612Z1_AntennaStatus {
+    SR1612Z1_ANTENNA_UNKNOWN = 0,
+    SR1612Z1_ANTENNA_OPEN = 1,
+    SR1612Z1_ANTENNA_OK = 2,
+    SR1612Z1_ANTENNA_SHORT = 3
+};
+
+struct SR1612Z1_TxtMessage {
+    enum SR1612Z1_AntennaStatus antennaStatus;
+};
+
+enum SR1612Z1_CustomMessageType {
+    SR1612Z1_CUSTOM_MSG_TYPE_NONE = 0,
+    SR1612Z1_CUSTOM_MSG_TYPE_TXT = 1
+};
+
+struct SR1612Z1_CustomMessage {
+    enum SR1612Z1_CustomMessageType type;
+    union {
+        struct SR1612Z1_TxtMessage txt;
+    };
+};
+
 void SR1612Z1_MakeBaudRateMsg(enum SR1612Z1_BaudRate baudRate, char *msg);
 void SR1612Z1_MakeUpdateRateMsg(enum SR1612Z1_PosUpdateRate posUpdateRate, char *msg);
 void SR1612Z1_MakeOutputMsg(const struct SR1612Z1_OutputRates *outputRates, char *msg);
 void SR1612Z1_MakeModeMsg(enum SR1612Z1_Mode mode, char *msg);
 void SR1612Z1_MakeRestartMsg(enum SR1612Z1_RestartType restartType, char *msg);
+
+enum SR1612Z1_CustomMessageType SR1612Z1_GetCustomMessageType(const char *msg);
+bool SR1612Z1_ParseCustomMessage(const char *msg, struct SR1612Z1_CustomMessage *customMessage);
 
 const char *SR1612Z1_UnitTest(void);
 
