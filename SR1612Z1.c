@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "MinUnit.h"
 #include "SR1612Z1.h"
 
