@@ -2,7 +2,11 @@
 
 Platform-agnostic library for the SR1612Z1 GNSS module.
 
-## Notes on usage
+## Library usage
+
+To use the library, just add source files *SR1612Z1.c* and *SR1612Z1.h* to target project. **Don't use** *CMakeLists.txt* file as it for testing purpose only.
+
+## Notes on module usage
 
 * 3.3V power supply is supported.
     * Datasheet for *SR1612Z1* requires 3.3V power supply.
@@ -18,6 +22,10 @@ Platform-agnostic library for the SR1612Z1 GNSS module.
     * GPIO mode is pull-down.
     * When position is acquired, PPS signal is transmitted once per second in the form of a short pulse.
 
+## Testing
+
+Integrated unit-testing is implemented using *MinUnit.h* and *SR1612Z1_Test.c* files. Tests are compiled and run by *CTest* and automated using GitHub Actions.
+
 ## Author
 
-Yuriy Kapoyko ykapoyko@vk.com
+Yuriy Kapoyko - ykapoyko@vk.com
