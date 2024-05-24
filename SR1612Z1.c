@@ -142,7 +142,7 @@ void SR1612Z1_MakeRestartMsg(enum SR1612Z1_RestartType restartType, char *msg) {
     writeChecksum(msg, len);
 }
 
-enum SR1612Z1_CustomMessageType SR1612Z1_GetCustomMsgType(const char *msg) {
+enum SR1612Z1_CustomMsgType SR1612Z1_GetCustomMsgType(const char *msg) {
     // Check prefix
     if (msg[0] != '$') {
         // Common prefix
@@ -157,9 +157,9 @@ enum SR1612Z1_CustomMessageType SR1612Z1_GetCustomMsgType(const char *msg) {
     }
 }
 
-bool SR1612Z1_ParseCustomMsg(const char *msg, struct SR1612Z1_CustomMessage *customMessage) {
+bool SR1612Z1_ParseCustomMsg(const char *msg, struct SR1612Z1_CustomMsg *customMessage) {
     // Get custom message type
-    enum SR1612Z1_CustomMessageType type = SR1612Z1_GetCustomMsgType(msg);
+    enum SR1612Z1_CustomMsgType type = SR1612Z1_GetCustomMsgType(msg);
     if (type == SR1612Z1_CUSTOM_MSG_TYPE_NONE) {
         return false;
     }
@@ -203,7 +203,7 @@ const char *SR1612Z1_UnitTest(void) {
     mu_assert("Wrong restart message", strcmp(msg, restartExpected) == 0);
 
     // Test custom message type for non-custom message
-    enum SR1612Z1_CustomMessageType type;
+    enum SR1612Z1_CustomMsgType type;
     const char *nonCustomMsg = "$GNVTG,0.00,T,,M,0.00,N,0.00,K,A*23";
     type = SR1612Z1_GetCustomMsgType(nonCustomMsg);
     mu_assert("Wrong custom message type", type == SR1612Z1_CUSTOM_MSG_TYPE_NONE);
@@ -214,7 +214,7 @@ const char *SR1612Z1_UnitTest(void) {
     mu_assert("Wrong custom message type", type == SR1612Z1_CUSTOM_MSG_TYPE_TXT);
 
     // Test custom message parsing
-    struct SR1612Z1_CustomMessage customMessage;
+    struct SR1612Z1_CustomMsg customMessage;
     bool result = SR1612Z1_ParseCustomMsg(customMsg, &customMessage);
     mu_assert("Failed to parse custom message", result);
     mu_assert("Wrong custom message type", customMessage.type == SR1612Z1_CUSTOM_MSG_TYPE_TXT);

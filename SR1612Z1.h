@@ -67,13 +67,13 @@ struct SR1612Z1_TxtMessage {
     enum SR1612Z1_AntennaStatus antennaStatus;
 };
 
-enum SR1612Z1_CustomMessageType {
+enum SR1612Z1_CustomMsgType {
     SR1612Z1_CUSTOM_MSG_TYPE_NONE = 0,
     SR1612Z1_CUSTOM_MSG_TYPE_TXT = 1
 };
 
-struct SR1612Z1_CustomMessage {
-    enum SR1612Z1_CustomMessageType type;
+struct SR1612Z1_CustomMsg {
+    enum SR1612Z1_CustomMsgType type;
     union {
         struct SR1612Z1_TxtMessage txt;
     };
@@ -85,8 +85,8 @@ void SR1612Z1_MakeOutputMsg(const struct SR1612Z1_OutputRates *outputRates, char
 void SR1612Z1_MakeModeMsg(enum SR1612Z1_Mode mode, char *msg);
 void SR1612Z1_MakeRestartMsg(enum SR1612Z1_RestartType restartType, char *msg);
 
-enum SR1612Z1_CustomMessageType SR1612Z1_GetCustomMsgType(const char *msg);
-bool SR1612Z1_ParseCustomMsg(const char *msg, struct SR1612Z1_CustomMessage *customMessage);
+enum SR1612Z1_CustomMsgType SR1612Z1_GetCustomMsgType(const char *msg);
+bool SR1612Z1_ParseCustomMsg(const char *msg, struct SR1612Z1_CustomMsg *customMessage);
 
 const char *SR1612Z1_UnitTest(void);
 
