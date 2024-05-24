@@ -85,8 +85,8 @@ void SR1612Z1_MakeOutputMsg(const struct SR1612Z1_OutputRates *outputRates, char
 void SR1612Z1_MakeModeMsg(enum SR1612Z1_Mode mode, char *msg);
 void SR1612Z1_MakeRestartMsg(enum SR1612Z1_RestartType restartType, char *msg);
 
-enum SR1612Z1_CustomMessageType SR1612Z1_GetCustomMessageType(const char *msg);
-bool SR1612Z1_ParseCustomMessage(const char *msg, struct SR1612Z1_CustomMessage *customMessage);
+enum SR1612Z1_CustomMessageType SR1612Z1_GetCustomMsgType(const char *msg);
+bool SR1612Z1_ParseCustomMsg(const char *msg, struct SR1612Z1_CustomMessage *customMessage);
 
 const char *SR1612Z1_UnitTest(void);
 

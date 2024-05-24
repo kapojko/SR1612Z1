@@ -44,8 +44,10 @@ static bool checkChecksum(const char *msg, int msgLen, uint8_t checksum) {
         return false;
     }
 
+    int coreMsgLen = (int)(coreMsgEnd - msg + 1);
+
     // Calculate checksum
-    uint8_t coreChecksum = calcChecksum(msg, coreMsgEnd - msg);
+    uint8_t coreChecksum = calcChecksum(msg, coreMsgLen);
 
     // Check checksum
     return coreChecksum == checksum;
@@ -58,8 +60,8 @@ static bool parseTxtMsg(const char *msg, struct SR1612Z1_TxtMessage *txtMessage)
     char msgId[6];
     char data[SR1612Z1_TXT_MAX_LEN];
     int checksum;
-    int numRead = sscanf(msg, "$%[^,],%*[^,],%*[^,],%*[^,],%31[^*]*%d", msgId, data, &checksum);
-    if (numRead != 6) {
+    int numRead = sscanf(msg, "$%[^,],%*[^,],%*[^,],%*[^,],%31[^*]*%x", msgId, data, &checksum);
+    if (numRead != 3) {
         return false;
     }
 
@@ -69,7 +71,7 @@ static bool parseTxtMsg(const char *msg, struct SR1612Z1_TxtMessage *txtMessage)
     }
 
     // Check checksum
-    if (!checkChecksum(msg, strlen(msg), checksum)) {
+    if (!checkChecksum(msg, (int)strlen(msg), checksum)) {
         return false;
     }
 
@@ -140,7 +142,7 @@ void SR1612Z1_MakeRestartMsg(enum SR1612Z1_RestartType restartType, char *msg) {
     writeChecksum(msg, len);
 }
 
-enum SR1612Z1_CustomMessageType SR1612Z1_GetCustomMessageType(const char *msg) {
+enum SR1612Z1_CustomMessageType SR1612Z1_GetCustomMsgType(const char *msg) {
     // Check prefix
     if (msg[0] != '$') {
         // Common prefix
@@ -148,16 +150,16 @@ enum SR1612Z1_CustomMessageType SR1612Z1_GetCustomMessageType(const char *msg) {
     }
 
     // Check type
-    if (strncmp(msg, SR1612Z1_TXT_MSG_ID, strlen(SR1612Z1_TXT_MSG_ID)) == 0) {
+    if (strncmp(msg + 1, SR1612Z1_TXT_MSG_ID, strlen(SR1612Z1_TXT_MSG_ID)) == 0) {
         return SR1612Z1_CUSTOM_MSG_TYPE_TXT;
     } else {
         return SR1612Z1_CUSTOM_MSG_TYPE_NONE;
     }
 }
 
-bool SR1612Z1_ParseCustomMessage(const char *msg, struct SR1612Z1_CustomMessage *customMessage) {
+bool SR1612Z1_ParseCustomMsg(const char *msg, struct SR1612Z1_CustomMessage *customMessage) {
     // Get custom message type
-    enum SR1612Z1_CustomMessageType type = SR1612Z1_GetCustomMessageType(msg);
+    enum SR1612Z1_CustomMessageType type = SR1612Z1_GetCustomMsgType(msg);
     if (type == SR1612Z1_CUSTOM_MSG_TYPE_NONE) {
         return false;
     }
@@ -165,7 +167,7 @@ bool SR1612Z1_ParseCustomMessage(const char *msg, struct SR1612Z1_CustomMessage 
     // Parse custom message
     if (type == SR1612Z1_CUSTOM_MSG_TYPE_TXT) {
         customMessage->type = SR1612Z1_CUSTOM_MSG_TYPE_TXT;
-        return SR1612Z1_ParseTxtMessage(msg, &customMessage->txt);
+        return parseTxtMsg(msg, &customMessage->txt);
     } else {
         return false;
     }
@@ -203,18 +205,18 @@ const char *SR1612Z1_UnitTest(void) {
     // Test custom message type for non-custom message
     enum SR1612Z1_CustomMessageType type;
     const char *nonCustomMsg = "$GNVTG,0.00,T,,M,0.00,N,0.00,K,A*23";
-    type = SR1612Z1_GetCustomMessageType(nonCustomMsg);
+    type = SR1612Z1_GetCustomMsgType(nonCustomMsg);
     mu_assert("Wrong custom message type", type == SR1612Z1_CUSTOM_MSG_TYPE_NONE);
 
     // Test custom message type for custom message
     const char *customMsg = "$GPTXT,01,01,01,ANTENNA OPEN*25";
-    type = SR1612Z1_GetCustomMessageType(customMsg);
+    type = SR1612Z1_GetCustomMsgType(customMsg);
     mu_assert("Wrong custom message type", type == SR1612Z1_CUSTOM_MSG_TYPE_TXT);
 
     // Test custom message parsing
     struct SR1612Z1_CustomMessage customMessage;
-    bool result = SR1612Z1_ParseCustomMessage(customMsg, &customMessage);
-    mu_assert("Wrong custom message parsing", result);
+    bool result = SR1612Z1_ParseCustomMsg(customMsg, &customMessage);
+    mu_assert("Failed to parse custom message", result);
     mu_assert("Wrong custom message type", customMessage.type == SR1612Z1_CUSTOM_MSG_TYPE_TXT);
     mu_assert("Wrong antenna status", customMessage.txt.antennaStatus == SR1612Z1_ANTENNA_OPEN);
 
